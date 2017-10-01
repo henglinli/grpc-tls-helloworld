@@ -1,0 +1,16 @@
+#!/bin/sh
+#-*- coding:utf-8-unix -*-
+openssl ecparam -genkey -name secp521r1 -out ca.key
+openssl req -new -x509 -key ca.key -out ca.crt -days 3650 -subj "/CN=sigma0f"
+#
+openssl ecparam -genkey -name secp521r1 -out server.key
+openssl req -new -key server.key -out server.csr -days 365 -subj "/CN=server.sigma0f"
+openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial -in server.csr -out server.crt
+rm server.csr
+#
+openssl ecparam -genkey -name secp521r1 -out client.key
+openssl req -new -key client.key -out client.csr -days 365 -subj "/CN=client.sigma0f"
+openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial -in client.csr -out client.crt
+rm client.csr
+#
+openssl verify -CAfile ca.crt client.crt server.crt
